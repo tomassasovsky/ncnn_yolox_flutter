@@ -23,14 +23,17 @@ class NcnnYoloxController extends StateNotifier<List<YoloxResults>> {
 
   final _ncnnYolox = NcnnYolox();
 
-  static final previewImage = StateProvider<ui.Image?>(
-    (_) => null,
-  );
+  static final previewImage = StateProvider<ui.Image?>((_) => null);
+  static final computationTime = StateProvider<Duration?>((_) => null);
 
   Future<void> initialize() async {
     await _ncnnYolox.initYolox(
-      modelPath: 'assets/yolox/yolox.bin',
-      paramPath: 'assets/yolox/yolox.param',
+      // modelPath: 'assets/yolox/yolox.bin',
+      // paramPath: 'assets/yolox/yolox.param',
+      modelPath: 'assets/yolox/model.bin',
+      paramPath: 'assets/yolox/model.param',
+      // modelPath: 'assets/yolox/yolov7-sv.bin',
+      // paramPath: 'assets/yolox/yolov7-sv.param',
       autoDispose: ref.read(ncnnYoloxOptions).autoDispose,
       nmsThresh: ref.read(ncnnYoloxOptions).nmsThresh,
       confThresh: ref.read(ncnnYoloxOptions).confThresh,
@@ -42,12 +45,17 @@ class NcnnYoloxController extends StateNotifier<List<YoloxResults>> {
     state = _ncnnYolox.detectImageFile(file.path);
     log(state.toString());
 
+    final stopwatch = Stopwatch()..start();
     final decodedImage = await decodeImageFromList(
       File(
         file.path,
       ).readAsBytesSync(),
     );
     ref.read(previewImage.notifier).state = decodedImage;
+
+    stopwatch.stop();
+    ref.read(computationTime.notifier).state = stopwatch.elapsed;
+    log('detect fps: ${1000 / stopwatch.elapsedMilliseconds}');
   }
 
   Future<void> detectFromCameraImage(CameraImage cameraImage) async {
@@ -56,19 +64,22 @@ class NcnnYoloxController extends StateNotifier<List<YoloxResults>> {
 
     switch (cameraImage.format.group) {
       case ImageFormatGroup.unknown:
+        log('not support format: unknown');
+        return;
       case ImageFormatGroup.jpeg:
-        log('not support format');
+        log('not support format: jpeg');
         return;
       case ImageFormatGroup.yuv420:
+        log('format: yuv420');
+        final camController = ref.read(myCameraController);
         state = _ncnnYolox
             .detectYUV420(
               y: cameraImage.planes[0].bytes,
               u: cameraImage.planes[1].bytes,
               v: cameraImage.planes[2].bytes,
               height: cameraImage.height,
-              deviceOrientationType:
-                  ref.read(myCameraController).deviceOrientationType,
-              sensorOrientation: ref.read(myCameraController).sensorOrientation,
+              deviceOrientationType: camController.deviceOrientationType,
+              sensorOrientation: camController.sensorOrientation,
               onDecodeImage: (image) {
                 ref.read(previewImage.notifier).state = image;
                 completer.complete();
@@ -77,6 +88,7 @@ class NcnnYoloxController extends StateNotifier<List<YoloxResults>> {
             .results;
         break;
       case ImageFormatGroup.bgra8888:
+        log('format: bgra8888');
         state = _ncnnYolox
             .detectBGRA8888(
               pixels: cameraImage.planes[0].bytes,
@@ -94,6 +106,7 @@ class NcnnYoloxController extends StateNotifier<List<YoloxResults>> {
     }
 
     stopwatch.stop();
+    ref.read(computationTime.notifier).state = stopwatch.elapsed;
     log('detect fps: ${1000 / stopwatch.elapsedMilliseconds}');
 
     return completer.future;

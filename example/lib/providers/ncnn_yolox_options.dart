@@ -15,6 +15,8 @@ class NcnnYoloxOptions with _$NcnnYoloxOptions {
 }
 
 final ncnnYoloxOptions = StateProvider(
-  (ref) => const NcnnYoloxOptions(),
+  (ref) => const NcnnYoloxOptions(
+      // targetSize: 460,
+      ),
   name: 'ncnnYoloxOptions',
 );

@@ -13,6 +13,7 @@ class PreviewPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final previewImage = ref.watch(NcnnYoloxController.previewImage);
+    final computationTime = ref.watch(NcnnYoloxController.computationTime);
 
     return WillPopScope(
       onWillPop: () async {
@@ -33,7 +34,8 @@ class PreviewPage extends HookConsumerWidget {
                         painter: YoloxResultsPainter(
                           image: previewImage,
                           results: ref.watch(ncnnYoloxController),
-                          labels: cocoLabels,
+                          labels: svLabels,
+                          computationTime: computationTime,
                         ),
                       ),
                     ),

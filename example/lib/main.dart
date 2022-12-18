@@ -33,6 +33,8 @@ class MyApp extends HookConsumerWidget {
   }
 }
 
+const svLabels = ['basketball', 'person', 'hoop'];
+
 final cocoLabels = [
   'person',
   'bicycle',
