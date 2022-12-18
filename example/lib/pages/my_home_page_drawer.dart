@@ -16,8 +16,8 @@ class MyHomePageDrawer extends HookConsumerWidget {
           SwitchListTile.adaptive(
             title: const Text('autoDispose'),
             subtitle: const Text(
-              // ignore: lines_longer_than_80_chars
-              'If true, multiple calls to initYolox will automatically dispose of previous models.',
+              'If true, multiple calls to initYolox will automatically '
+              'dispose of previous models.',
             ),
             value: ref.watch(ncnnYoloxOptions).autoDispose,
             onChanged: (value) {
@@ -44,9 +44,13 @@ class MyHomePageDrawer extends HookConsumerWidget {
                 ],
               );
 
+              if (results == null) {
+                return;
+              }
+
               ref.read(ncnnYoloxOptions.notifier).state =
                   ref.read(ncnnYoloxOptions).copyWith(
-                        nmsThresh: double.parse(results!.first),
+                        nmsThresh: double.parse(results.first),
                       );
             },
           ),
@@ -67,9 +71,13 @@ class MyHomePageDrawer extends HookConsumerWidget {
                 ],
               );
 
+              if (results == null) {
+                return;
+              }
+
               ref.read(ncnnYoloxOptions.notifier).state =
                   ref.read(ncnnYoloxOptions).copyWith(
-                        confThresh: double.parse(results!.first),
+                        confThresh: double.parse(results.first),
                       );
             },
           ),
@@ -90,9 +98,13 @@ class MyHomePageDrawer extends HookConsumerWidget {
                 ],
               );
 
+              if (results == null) {
+                return;
+              }
+
               ref.read(ncnnYoloxOptions.notifier).state =
                   ref.read(ncnnYoloxOptions).copyWith(
-                        targetSize: int.parse(results!.first),
+                        targetSize: int.parse(results.first),
                       );
             },
           )

@@ -13,14 +13,14 @@ class MyCameraController {
 
   final Ref ref;
 
-  CameraController? _cameraController;
+  CameraController? cameraController;
 
   KannaRotateDeviceOrientationType get deviceOrientationType =>
-      _cameraController?.value.deviceOrientation.kannaRotateType ??
+      cameraController?.value.deviceOrientation.kannaRotateType ??
       KannaRotateDeviceOrientationType.portraitUp;
 
   int get sensorOrientation =>
-      _cameraController?.description.sensorOrientation ?? 90;
+      cameraController?.description.sensorOrientation ?? 90;
 
   bool _isProcessing = false;
 
@@ -29,14 +29,14 @@ class MyCameraController {
 
     final camera = (await availableCameras())[0];
 
-    _cameraController = CameraController(
+    cameraController = CameraController(
       camera,
       ResolutionPreset.medium,
       enableAudio: false,
     );
 
-    await _cameraController!.initialize();
-    await _cameraController!.startImageStream(
+    await cameraController!.initialize();
+    await cameraController!.startImageStream(
       (image) async {
         if (_isProcessing) {
           return;
@@ -52,12 +52,12 @@ class MyCameraController {
   }
 
   Future<void> stopImageStream() async {
-    final cameraValue = _cameraController?.value;
+    final cameraValue = cameraController?.value;
     if (cameraValue != null) {
       if (cameraValue.isInitialized && cameraValue.isStreamingImages) {
-        await _cameraController?.stopImageStream();
-        await _cameraController?.dispose();
-        _cameraController = null;
+        await cameraController?.stopImageStream();
+        await cameraController?.dispose();
+        cameraController = null;
       }
     }
   }
